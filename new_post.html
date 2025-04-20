@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Blog Post</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        button#saveButton {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button#saveButton:hover {
+            background-color: #0056b3;
+        }
+
+        img#preview {
+            max-width: 300px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Add New Post</h1>
+        <nav>
+            <a href="index.html">Home</a>
+        </nav>
+    </header>
+    <main>
+        <form id="post-form">
+            <div class="container">
+                <h1>Create New Blog Post</h1>
+                <div class="input-group">
+                    <label for="titleInput">Title:</label>
+                    <input type="text" id="titleInput" placeholder="Enter title">
+                </div>
+                <div class="input-group">
+                    <label for="contentInput">Content:</label>
+                    <textarea id="contentInput" placeholder="Enter content"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="imageInput">Upload an Image for the Blog:</label>
+                    <input type="file" id="imageInput" accept="image/*" required>
+                    <img id="preview" style="display:none;">
+                </div>
+                <button id="saveButton" type="submit">Add Post</button>
+            </div>
+        </form>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const form = document.getElementById('post-form');
+                const titleInput = document.getElementById('titleInput');
+                const contentInput = document.getElementById('contentInput');
+                const imageInput = document.getElementById('imageInput');
+                const saveButton = document.getElementById('saveButton');
+                const preview = document.getElementById('preview');
+                const localStorageKey = 'posts';
+                const defaultPosts = [
+                    { title: "The Art of Simplicity", content: "Designing minimal yet meaningful experiences.",image: "https://i.pinimg.com/474x/cf/3d/b1/cf3db1f311f2cbf1ef596d94e43f0b84.jpg"},
+                    {title: "Learning JavaScript",content: "Why JS is essential in modern web development.",image: "https://i.pinimg.com/474x/3f/f3/38/3ff338fded7cab6c231606b35ebe18ab.jpg"},
+                    {title: "Healthy Work Habits",content: "Boost productivity with these small changes.",image: "https://i.pinimg.com/474x/c7/e7/59/c7e7594051c25adfc9e0236b7b6d01bc.jpg"},
+                    {title: "Remote Work Tips",content: "How to stay motivated and organized remotely.",image: "https://i.pinimg.com/474x/1d/d4/6b/1dd46bd74455060421afa16922e1e7a9.jpg"},
+                    {title: "Why CSS Matters",content: "The power of good styling in user experience.",image: "https://i.pinimg.com/474x/89/ee/f0/89eef0156f864ee018f3d90522ca360e.jpg"},
+                    {title: "Building a Portfolio",content: "Showcasing your skills the right way.",image: "https://i.pinimg.com/474x/94/5f/45/945f45d4c5de6662331e8233211be622.jpg"} 
+
+                ];
+                let imageBase64 = "";
+
+                // Function to load default posts if no posts exist
+                function loadDefaultPosts() {
+                    const storedPostsString = localStorage.getItem(localStorageKey);
+                    if (!storedPostsString || JSON.parse(storedPostsString).length === 0) {
+                        localStorage.setItem(localStorageKey, JSON.stringify(defaultPosts));
+                    }
+                }
+
+                // Preview image and convert to base64
+                imageInput.addEventListener('change', function (event) {
+                    const file = event.target.files[0];
+                    if (!file) {
+                        imageBase64 = "";
+                        preview.style.display = 'none';
+                        preview.src = "";
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        imageBase64 = reader.result;
+                        preview.src = imageBase64;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+
+                    const title = titleInput.value.trim();
+                    const content = contentInput.value.trim();
+
+                    if (!title || !content || !imageBase64) {
+                        alert("Please fill all fields and upload an image.");
+                        return;
+                    }
+
+                    const newPost = { title, content, image: imageBase64 };
+                    const existingPostsString = localStorage.getItem(localStorageKey);
+                    const existingPosts = existingPostsString ? JSON.parse(existingPostsString) : [...defaultPosts]; // Start with defaults if nothing stored
+
+                    existingPosts.unshift(newPost); // Add new post to the top
+                    localStorage.setItem(localStorageKey, JSON.stringify(existingPosts));
+
+                    // Redirect to home page (assuming you have an index.html to display posts)
+                    window.location.href = 'index.html';
+                });
+
+                // Load default posts on page load
+                loadDefaultPosts();
+            });
+        </script>
+    </main>
+</body>
+</html>
